@@ -175,10 +175,10 @@ public class PulseControllerImpl
 
         void register() {
             mContext.getContentResolver().registerContentObserver(
-                    Settings.Secure.getUriFor(Settings.Secure.NAVBAR_PULSE_ENABLED), false, this,
+                    Settings.Secure.getUriFor(Settings.Secure.PULSE_ENABLED), false, this,
                     UserHandle.USER_ALL);
             mContext.getContentResolver().registerContentObserver(
-                    Settings.Secure.getUriFor(Settings.Secure.LOCKSCREEN_PULSE_ENABLED), false, this,
+                    Settings.Secure.getUriFor(Settings.Secure.PULSE_LOCATION), false, this,
                     UserHandle.USER_ALL);
             mContext.getContentResolver().registerContentObserver(
                     Settings.Secure.getUriFor(Settings.Secure.PULSE_RENDER_STYLE), false, this,
@@ -187,8 +187,8 @@ public class PulseControllerImpl
 
         @Override
         public void onChange(boolean selfChange, Uri uri) {
-            if (uri.equals(Settings.Secure.getUriFor(Settings.Secure.NAVBAR_PULSE_ENABLED))
-                    || uri.equals(Settings.Secure.getUriFor(Settings.Secure.LOCKSCREEN_PULSE_ENABLED))) {
+            if (uri.equals(Settings.Secure.getUriFor(Settings.Secure.PULSE_ENABLED))
+                    || uri.equals(Settings.Secure.getUriFor(Settings.Secure.PULSE_LOCATION))) {
                 updateEnabled();
                 updatePulseVisibility();
             } else if (uri.equals(Settings.Secure.getUriFor(Settings.Secure.PULSE_RENDER_STYLE))) {
@@ -203,10 +203,12 @@ public class PulseControllerImpl
         }
 
         void updateEnabled() {
-            mNavPulseEnabled = Settings.Secure.getIntForUser(mContext.getContentResolver(),
-                    Settings.Secure.NAVBAR_PULSE_ENABLED, 0, UserHandle.USER_CURRENT) == 1;
-            mLsPulseEnabled = Settings.Secure.getIntForUser(mContext.getContentResolver(),
-                    Settings.Secure.LOCKSCREEN_PULSE_ENABLED, 0, UserHandle.USER_CURRENT) == 1;
+            boolean enabled = Settings.Secure.getIntForUser(mContext.getContentResolver(),
+                    Settings.Secure.PULSE_ENABLED, 0, UserHandle.USER_CURRENT) == 1;
+            int location = Settings.Secure.getIntForUser(mContext.getContentResolver(),
+                    Settings.Secure.PULSE_LOCATION, 0, UserHandle.USER_CURRENT);
+            mNavPulseEnabled = enabled && location != 0;
+            mLsPulseEnabled = enabled && location != 1;
         }
 
         void updateRenderMode() {
